@@ -11,9 +11,7 @@
   git,
   gnutar,
   cacert,
-}:
-
-let
+}: let
   version = "3.9.0";
 
   sources = {
@@ -38,46 +36,46 @@ let
 
   isLinux = stdenv.hostPlatform.isLinux;
 in
-stdenv.mkDerivation {
-  pname = "geode-sdk-cli";
-  inherit version;
+  stdenv.mkDerivation {
+    pname = "geode-sdk-cli";
+    inherit version;
 
-  src = fetchurl {
-    inherit (source) url hash;
-  };
+    src = fetchurl {
+      inherit (source) url hash;
+    };
 
-  nativeBuildInputs = [ unzip makeWrapper ] ++ lib.optionals isLinux [ autoPatchelfHook ];
-  buildInputs = lib.optionals isLinux [ zlib openssl libgcc ];
+    nativeBuildInputs = [unzip makeWrapper] ++ lib.optionals isLinux [autoPatchelfHook];
+    buildInputs = lib.optionals isLinux [zlib openssl libgcc];
 
-  sourceRoot = ".";
-  dontConfigure = true;
-  dontBuild = true;
-  dontStrip = stdenv.hostPlatform.isDarwin;
+    sourceRoot = ".";
+    dontConfigure = true;
+    dontBuild = true;
+    dontStrip = stdenv.hostPlatform.isDarwin;
 
-  installPhase = ''
-    runHook preInstall
-    install -Dm755 geode $out/bin/geode
-    runHook postInstall
-  '';
+    installPhase = ''
+      runHook preInstall
+      install -Dm755 geode $out/bin/geode
+      runHook postInstall
+    '';
 
-  postFixup = ''
-    wrapProgram $out/bin/geode \
-      --prefix PATH : ${lib.makeBinPath [ git gnutar ]} \
-      --set SSL_CERT_FILE ${cacert}/etc/ssl/certs/ca-certificates.crt \
-      --set GIT_SSL_CAINFO ${cacert}/etc/ssl/certs/ca-certificates.crt
-  '';
+    postFixup = ''
+      wrapProgram $out/bin/geode \
+        --prefix PATH : ${lib.makeBinPath [git gnutar]} \
+        --set SSL_CERT_FILE ${cacert}/etc/ssl/certs/ca-bundle.crt \
+        --set GIT_SSL_CAINFO ${cacert}/etc/ssl/certs/ca-bundle.crt
+    '';
 
-  meta = {
-    description = "Command-line utilities for working with the Geode SDK";
-    homepage = "https://github.com/geode-sdk/cli";
-    license = lib.licenses.boost;
-    sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
-    platforms = [
-      "x86_64-linux"
-      "aarch64-linux"
-      "x86_64-darwin"
-      "aarch64-darwin"
-    ];
-    mainProgram = "geode";
-  };
-}
+    meta = {
+      description = "Command-line utilities for working with the Geode SDK";
+      homepage = "https://github.com/geode-sdk/cli";
+      license = lib.licenses.boost;
+      sourceProvenance = [lib.sourceTypes.binaryNativeCode];
+      platforms = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+      mainProgram = "geode";
+    };
+  }
